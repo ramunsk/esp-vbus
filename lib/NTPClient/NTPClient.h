@@ -1,6 +1,5 @@
-#ifndef ntpclient_h
-#define ntpclient_h
-
+#ifndef _NTPCLIENT_H_
+#define _NTPCLIENT_H_
 
 #include <WiFiUdp.h>
 
@@ -13,7 +12,7 @@ private:
     const char* _serverName;
     WiFiUDP _udp;
     IPAddress _ip;
-    
+
     void sendNTPRequest();
     unsigned long parseNTPResponse();
 };
