@@ -44,40 +44,66 @@
 //     delay(5000);
 // };
 
-#include <SoftwareSerial.h>
+// #include <SoftwareSerial.h>
+//
+// #define VBUS_RX_PIN 2
+// #define VBUS_TX_PIN 3
+//
+// SoftwareSerial vbus(VBUS_RX_PIN, VBUS_TX_PIN);
+//
+// void setup() {
+//   delay(500);
+//   Serial.begin(115200);
+//   while (!Serial);
+//
+//   vbus.begin(9600);
+//   Serial.println("-------------");
+//
+// }
+//
+// void loop() {
+//
+//   if (vbus.available() > 0){
+//     Serial.println("");
+//     Serial.print(millis());Serial.print(": ");
+//     while (vbus.available() > 0) {
+//       uint8_t inByte = vbus.read();
+//       if (inByte < 0x10){
+//         Serial.print("0");
+//       }
+//       Serial.print(inByte, HEX);
+//       Serial.print(" ");
+//     }
+//     Serial.println("");
+//   } else {
+//     Serial.print(".");
+//     delay(200);
+//   }
+//
+// }
 
-#define VBUS_RX_PIN 2
-#define VBUS_TX_PIN 3
+bool proceed = false;
 
-SoftwareSerial vbus(VBUS_RX_PIN, VBUS_TX_PIN);
-
-void setup() {
-  delay(500);
-  Serial.begin(115200);
-  while (!Serial);
-
-  vbus.begin(9600);
-  Serial.println("-------------");
+void setup(){
+    Serial.begin(115200);
+    while(!proceed){
+        if (Serial.available() > 0){
+            char in = Serial.read();
+            if (in == 'a'){
+                proceed = true;
+            } else {
+                Serial.println("Waiting for command to start...");
+                delay(500);
+            }
+        }  else {
+            Serial.println("Waiting for command to start...");
+            delay(500);
+        }
+    }
 
 }
 
 void loop() {
-
-  if (vbus.available() > 0){
-    Serial.println("");
-    Serial.print(millis());Serial.print(": ");
-    while (vbus.available() > 0) {
-      uint8_t inByte = vbus.read();
-      if (inByte < 0x10){
-        Serial.print("0");
-      }
-      Serial.print(inByte, HEX);
-      Serial.print(" ");
-    }
-    Serial.println("");
-  } else {
-    Serial.print(".");
-    delay(200);
-  }
-
+    Serial.println("Now in loop...");
+    delay(1000);
 }
