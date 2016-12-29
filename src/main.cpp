@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <VBusBuffer.h>
 // #include <ESP8266WiFi.h>
 // #include <PubSubClient.h>
 
@@ -83,6 +84,18 @@
 // }
 
 bool proceed = false;
+uint8_t data[] = {0xAA, 0x10, 0x00, 0x21, 0x77, 0x10, 0x00, 0x01, 0x11, 0x35, 0x88, 0x22, 0x38, 0x22, 0x05, 0x46, 0x2C, 0x02, 0x66, 0x02, 0x01};
+int datalength = sizeof(data);
+int pos = 0;
+VBusBuffer vbus;
+
+void printHEX(const uint8_t byte){
+    if (byte < 16){
+        Serial.print("0");
+    }
+    Serial.print(byte, HEX);
+    Serial.print(" ");
+}
 
 void setup(){
     Serial.begin(115200);
@@ -104,6 +117,9 @@ void setup(){
 }
 
 void loop() {
-    Serial.println("Now in loop...");
-    delay(1000);
+    for (pos = 0; pos < datalength; pos++){
+        printHEX(data[pos]);
+        vbus.push(data[pos]);
+        delay(200);
+    }
 }
