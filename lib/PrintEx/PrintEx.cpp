@@ -17,6 +17,11 @@ PrintEx& PrintEx::println(const String &s){
     return *this;
 }
 
+PrintEx& PrintEx::print(const uint8_t data){
+    _p->print(data);
+    return *this;
+}
+
 PrintEx& PrintEx::println(const uint8_t data){
     _p->println(data);
     return *this;

@@ -2,14 +2,20 @@
 
 #include "VBusBuffer.h"
 
+#define VBUS_HEADER_MATCH {0xAA, 0x10, 0x00, 0x21, 0x77, 0x10, 0x00, 0x01, 0x11, 0x35}
+#define VBUS_FRAME_SIZE 6
+
+
 VBusBuffer::VBusBuffer():
     _pos(0),
-    _streamHeader(VBusStreamHeader()),
     _printex(PrintEx(&Serial)),
+    _frameIndex(0),
     _state(AWAITING)
     {
         reset();
     }
+
+const uint8_t VBusBuffer::_headerMatch[] = VBUS_HEADER_MATCH;
 
 void VBusBuffer::push(const uint8_t data) {
     // From docs: (p.8)
@@ -18,48 +24,102 @@ void VBusBuffer::push(const uint8_t data) {
     // Significant Bit) set (its value is greater than 0x7F or 127 decimal). All received bytes up to the next SYNCByte
     // are ignored.
     if (data > 0x7F && data != 0xAA){
+        // invalid byte received
+        // switch to waiting for sync byte
         _printex
             .newln()
-            .print("Received [").printHEX(data).print("]. Resetting...").newln();
+            .print("Received invalid byte [0x").printHEX(data).println("]. Resetting...");
         reset();
         return;
     }
 
     if (data == 0xAA){
+        // sync byte received
+        // drop everything read up to this point
+        // and start reading header
         reset();
-        _buffer[_pos] = data;
-        _pos++;
-        _state = RECEIVING;
+        _state = RECEIVING_HEADER;
         _printex.newln().println("SYNCByte received. Receiving data...");
     }
 
-    if (_state != RECEIVING){
+
+    if (_state == RECEIVING_HEADER){
+        readHeader(data);
+    } else if (_state == RECEIVING_FRAMES){
+        readFrame(data);
+    }
+}
+
+void VBusBuffer::readHeader(const uint8_t data){
+    writeBuffer(data);
+    if (_pos != VBUS_HEADER_SIZE){
         return;
     }
 
-    _buffer[_pos] = data;
-    _pos++;
+    if (memcmp(_buffer, _headerMatch, 10) == 0){
+        _printex.newln().println("Found a matching packet...");
+        resetBuffer();
+        _state = RECEIVING_FRAMES;
+    }
+}
+
+void VBusBuffer::readFrame(const uint8_t data){
+    writeBuffer(data);
+    if (_pos != VBUS_FRAME_SIZE){
+        return;
+    }
+
+    uint8_t crc = calcFrameCRC();
+    if (crc == _buffer[VBUS_BUFFER_SIZE - 1]){
+        _printex.newln().println("CRC OK!");
+    } else {
+        _printex.newln().println("CRC FAIL!!!!!!!");
+    }
+
+    uint32_t value = parseFrame();
+
+    _printex.print("Frame: ").print(_frameIndex).print(", value: ").println(value);
+
+    resetBuffer();
+    _frameIndex++;
+}
+
+uint8_t VBusBuffer::calcFrameCRC()
+{
+    uint8_t crc = 0x7F;
+    for (size_t i = 0; i < VBUS_FRAME_SIZE; i++) {
+        crc = (crc - _buffer [i]) & 0x7F;
+    }
+    return crc;
+}
+
+uint32_t VBusBuffer::parseFrame(){
+    uint8_t septet = _buffer[VBUS_FRAME_SIZE - 2];
+    for (size_t i = 0; i < VBUS_FRAME_SIZE - 2; i++) {
+        if (septet & (1 << i)) {
+            _buffer[i] |= 0x80;
+        }
+    }
+    uint32_t result = 0;
+    for (size_t i = 0; i < VBUS_FRAME_SIZE - 2; i++) {
+        result = (result << 8) | _buffer[i];
+    }
+
+    return result;
+}
 
 
+void VBusBuffer::writeBuffer(const uint8_t data){
+    _buffer[_pos++] = data;
 }
 
 void VBusBuffer::reset(){
+    _state = AWAITING;
+    _frameIndex = 0;
+    resetBuffer();
+}
+
+void VBusBuffer::resetBuffer() {
     _pos = 0;
     memset(_buffer, 0, VBUS_BUFFER_SIZE);
-    _streamHeader = VBusStreamHeader();
-    _state = AWAITING;
-}
-
-void VBusBuffer::parseHeader() {
-    _streamHeader.srcAddress = _buffer[2] << 8 | _buffer[1];
-    _streamHeader.destAddress = _buffer[4] << 8 | _buffer[3];
-    _streamHeader.version = _buffer[5];
-    printDebugInfo();
-}
-
-void VBusBuffer::printDebugInfo(){
-    _printex.println("");
-    _printex.print("Source address:      0x").printHEXln(_streamHeader.srcAddress);
-    _printex.print("Destination address: 0x").printHEXln(_streamHeader.destAddress);
-    _printex.print("Version:             ").println(_streamHeader.version);
 }

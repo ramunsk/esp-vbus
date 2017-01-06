@@ -8,6 +8,7 @@
 
 
 #define VBUS_BUFFER_SIZE 200
+#define VBUS_HEADER_SIZE 10
 
 class VBusBuffer {
 public:
@@ -17,14 +18,18 @@ public:
 private:
     uint8_t _buffer[VBUS_BUFFER_SIZE];
     uint8_t _pos;
-    VBusStreamHeader _streamHeader;
     PrintEx _printex;
     enum VBusBufferState _state;
+    static const uint8_t _headerMatch[VBUS_HEADER_SIZE];
+    uint8_t _frameIndex;
+
+    void writeBuffer(const uint8_t data);
+    void readHeader(const uint8_t data);
+    void readFrame(const uint8_t data);
     void reset();
-
-    void parseHeader();
-
-    void printDebugInfo();
+    void resetBuffer();
+    uint8_t calcFrameCRC();
+    uint32_t parseFrame();
 };
 
 

@@ -2,9 +2,11 @@
 #define _VBUSBUFFERSTATE_H_
 
 #include <stdint.h>
+#include <vector>
+#include <Arduino.h>
 
 enum VBusBufferState: uint8_t {
-    AWAITING, RECEIVING
+    AWAITING, RECEIVING_HEADER, RECEIVING_FRAMES
 };
 
 #endif

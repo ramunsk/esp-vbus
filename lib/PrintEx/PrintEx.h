@@ -7,10 +7,12 @@ class PrintEx {
 public:
     PrintEx(Print *p);
 
+    PrintEx& newln();
+
     PrintEx& print(const String &s);
     PrintEx& println(const String &s);
 
-    PrintEx& newln();
+    PrintEx& print(const uint8_t data);
     PrintEx& println(const uint8_t data);
 
     PrintEx& printHEX(const uint8_t data);
