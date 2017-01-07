@@ -15,6 +15,12 @@ public:
     PrintEx& print(const uint8_t data);
     PrintEx& println(const uint8_t data);
 
+    PrintEx& print(const uint16_t data);
+    PrintEx& println(const uint16_t data);
+
+    PrintEx& print(const float data);
+    PrintEx& println(const float data);
+
     PrintEx& printHEX(const uint8_t data);
     PrintEx& printHEXln(const uint8_t data);
 

@@ -27,6 +27,26 @@ PrintEx& PrintEx::println(const uint8_t data){
     return *this;
 }
 
+PrintEx& PrintEx::print(const uint16_t data){
+    _p->print(data);
+    return *this;
+}
+
+PrintEx& PrintEx::println(const uint16_t data){
+    _p->println(data);
+    return *this;
+}
+
+PrintEx& PrintEx::print(const float data){
+    _p->print(data);
+    return *this;
+}
+
+PrintEx& PrintEx::println(const float data){
+    _p->println(data);
+    return *this;
+}
+
 PrintEx& PrintEx::printHEX(const uint8_t data){
     _p->print((data & 0xF0) >> 4, HEX);
     _p->print((data & 0x0F) >> 0, HEX);

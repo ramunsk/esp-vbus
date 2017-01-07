@@ -9,14 +9,19 @@
 
 #define VBUS_BUFFER_SIZE 200
 #define VBUS_HEADER_SIZE 10
+#define VBUS_PAYLOAD_SIZE 68
+#define VBUS_FRAME_COUNT 17
+
+typedef void(* onVBusDataFrameReceived)(const uint8_t frameIndex, const uint8_t data[]);
 
 class VBusBuffer {
 public:
-    VBusBuffer();
+    VBusBuffer(onVBusDataFrameReceived);
     void push(const uint8_t data);
 
 private:
     uint8_t _buffer[VBUS_BUFFER_SIZE];
+    uint8_t _payload[VBUS_PAYLOAD_SIZE];
     uint8_t _pos;
     PrintEx _printex;
     enum VBusBufferState _state;
@@ -29,7 +34,8 @@ private:
     void reset();
     void resetBuffer();
     uint8_t calcFrameCRC();
-    uint32_t parseFrame();
+    void parseFrame();
+    onVBusDataFrameReceived _onFrameReceived;
 };
 
 

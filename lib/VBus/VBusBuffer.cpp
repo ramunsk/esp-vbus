@@ -6,11 +6,12 @@
 #define VBUS_FRAME_SIZE 6
 
 
-VBusBuffer::VBusBuffer():
+VBusBuffer::VBusBuffer(onVBusDataFrameReceived onFrameReceived):
     _pos(0),
     _printex(PrintEx(&Serial)),
     _frameIndex(0),
-    _state(AWAITING)
+    _state(AWAITING),
+    _onFrameReceived(onFrameReceived)
     {
         reset();
     }
@@ -26,9 +27,9 @@ void VBusBuffer::push(const uint8_t data) {
     if (data > 0x7F && data != 0xAA){
         // invalid byte received
         // switch to waiting for sync byte
-        _printex
-            .newln()
-            .print("Received invalid byte [0x").printHEX(data).println("]. Resetting...");
+        // _printex
+        //     .newln()
+        //     .print("Received invalid byte [0x").printHEX(data).println("]. Resetting...");
         reset();
         return;
     }
@@ -39,7 +40,7 @@ void VBusBuffer::push(const uint8_t data) {
         // and start reading header
         reset();
         _state = RECEIVING_HEADER;
-        _printex.newln().println("SYNCByte received. Receiving data...");
+        //_printex.newln().println("SYNCByte received. Receiving data...");
     }
 
 
@@ -57,31 +58,44 @@ void VBusBuffer::readHeader(const uint8_t data){
     }
 
     if (memcmp(_buffer, _headerMatch, 10) == 0){
-        _printex.newln().println("Found a matching packet...");
+        //_printex.newln().println("Found a matching packet...");
         resetBuffer();
         _state = RECEIVING_FRAMES;
     }
 }
 
 void VBusBuffer::readFrame(const uint8_t data){
+    uint8_t frameData[4];
     writeBuffer(data);
     if (_pos != VBUS_FRAME_SIZE){
         return;
     }
 
     uint8_t crc = calcFrameCRC();
-    if (crc == _buffer[VBUS_BUFFER_SIZE - 1]){
-        _printex.newln().println("CRC OK!");
-    } else {
+    if (crc != _buffer[VBUS_BUFFER_SIZE - 1]){
         _printex.newln().println("CRC FAIL!!!!!!!");
     }
 
-    uint32_t value = parseFrame();
+    parseFrame();
+    memcpy(&_payload[_frameIndex * 4], _buffer, 4);
+    memcpy(frameData, _buffer, 4);
 
-    _printex.print("Frame: ").print(_frameIndex).print(", value: ").println(value);
+    if (_onFrameReceived != nullptr){
+        _onFrameReceived(_frameIndex, frameData);
+    }
+
+    //_printex.print("Frame: ").print(_frameIndex).print(", value: ").println(value);
 
     resetBuffer();
     _frameIndex++;
+
+    // if (_frameIndex == VBUS_FRAME_COUNT){
+    //     _printex.newln().print("Payload: ");
+    //     for (size_t i = 0; i < VBUS_PAYLOAD_SIZE; i++) {
+    //         _printex.print(" ").printHEX(_payload[i]);
+    //     }
+    //     _printex.newln();
+    // }
 }
 
 uint8_t VBusBuffer::calcFrameCRC()
@@ -93,19 +107,14 @@ uint8_t VBusBuffer::calcFrameCRC()
     return crc;
 }
 
-uint32_t VBusBuffer::parseFrame(){
+void VBusBuffer::parseFrame(){
     uint8_t septet = _buffer[VBUS_FRAME_SIZE - 2];
     for (size_t i = 0; i < VBUS_FRAME_SIZE - 2; i++) {
         if (septet & (1 << i)) {
             _buffer[i] |= 0x80;
         }
     }
-    uint32_t result = 0;
-    for (size_t i = 0; i < VBUS_FRAME_SIZE - 2; i++) {
-        result = (result << 8) | _buffer[i];
-    }
 
-    return result;
 }
 
 
@@ -116,6 +125,7 @@ void VBusBuffer::writeBuffer(const uint8_t data){
 void VBusBuffer::reset(){
     _state = AWAITING;
     _frameIndex = 0;
+    memset(_payload, 0, VBUS_PAYLOAD_SIZE);
     resetBuffer();
 }
 
