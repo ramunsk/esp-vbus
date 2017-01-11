@@ -8,7 +8,6 @@
 
 VBusBuffer::VBusBuffer(onVBusDataFrameReceived onFrameReceived):
     _pos(0),
-    _printex(PrintEx(&Serial)),
     _frameIndex(0),
     _state(AWAITING),
     _onFrameReceived(onFrameReceived)
@@ -73,7 +72,7 @@ void VBusBuffer::readFrame(const uint8_t data){
 
     uint8_t crc = calcFrameCRC();
     if (crc != _buffer[VBUS_BUFFER_SIZE - 1]){
-        _printex.newln().println("CRC FAIL!!!!!!!");
+        // TODO: handle error;
     }
 
     parseFrame();

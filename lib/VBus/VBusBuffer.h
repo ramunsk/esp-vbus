@@ -22,7 +22,6 @@ private:
     uint8_t _buffer[VBUS_BUFFER_SIZE];
     uint8_t _payload[VBUS_PAYLOAD_SIZE];
     uint8_t _pos;
-    PrintEx _printex;
     enum VBusBufferState _state;
     static const uint8_t _headerMatch[VBUS_HEADER_SIZE];
     uint8_t _frameIndex;
