@@ -2,7 +2,6 @@
 #define _VBUSBUFFER_H_
 
 #include <Arduino.h>
-#include <VBusStreamHeader.h>
 #include <PrintEx.h>
 #include <VBusBufferState.h>
 
