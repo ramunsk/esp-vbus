@@ -1,13 +1,9 @@
-#ifdef DEBUG
-#define DEBUG_PRINT(fmt, args...)    Serial.printf(fmt, ## args)
-#else
-#define DEBUG_PRINT(fmt, args...)    /* Don't do anything in release builds */
-#endif
+#include <debug.h>
 
-#include <Arduino.h>
+
 #include "VBusBuffer.h"
 
-#define VBUS_HEADER_MATCH {0xAA, 0x10, 0x00, 0x21, 0x77, 0x10, 0x00, 0x01, 0x11, 0x35}
+
 #define VBUS_FRAME_SIZE 6
 
 
@@ -20,7 +16,7 @@ VBusBuffer::VBusBuffer(onVBusDataFrameReceived onFrameReceived):
         reset();
     }
 
-const uint8_t VBusBuffer::_headerMatch[] = VBUS_HEADER_MATCH;
+const uint8_t VBusBuffer::_headerMatch[] = {0xAA, 0x10, 0x00, 0x21, 0x77, 0x10, 0x00, 0x01, 0x11, 0x35};
 
 void VBusBuffer::push(const uint8_t data) {
     // From docs: (p.8)

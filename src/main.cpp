@@ -1,11 +1,12 @@
 #define DEBUG
 
+#include <dbg.h>            // DEBUG_PRINT macro definitions
+#include "config.h"         // Configuration file with SSID and password
+
+
 #include <Arduino.h>
 #include <VBusBuffer.h>
 #include <SoftwareSerial.h>
-#include "debug_print.h"
-#include "config.h"
-
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>

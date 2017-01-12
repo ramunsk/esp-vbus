@@ -1,6 +1,7 @@
 #ifndef _VBUSBUFFER_H_
 #define _VBUSBUFFER_H_
 
+#include <dbg.h>
 #include <Arduino.h>
 #include <VBusBufferState.h>
 

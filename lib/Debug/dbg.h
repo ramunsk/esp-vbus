@@ -1,5 +1,5 @@
-#ifndef _DEBUG_PRINT_H_
-#define _DEBUG_PRINT_H_
+#ifndef _DBG_H_
+#define _DBG_H_
 
 #ifdef DEBUG
 #define DEBUG_PRINT(fmt, args...)    Serial.printf(fmt, ## args)
