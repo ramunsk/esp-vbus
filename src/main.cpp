@@ -4,12 +4,20 @@
 #include <VBusBuffer.h>
 #include <SoftwareSerial.h>
 #include "debug_print.h"
+#include "config.h"
+
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 
 #define VBUS_RX_PIN 2
 #define VBUS_TX_PIN 3
 
+ESP8266WebServer server(80);
 
-
+String webPage = "";
+MDNSResponder mdns;
 
 
 int16_t parseInt(const uint8_t* buffer, const uint8_t start){
@@ -137,10 +145,36 @@ VBusBuffer vbusBuffer(onFrameReceived);
 void setup() {
   Serial.begin(115200);
   vbus.begin(9600);
+
+  webPage = "Hi!";
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (mdns.begin("iot01", WiFi.localIP())) {
+    Serial.println("MDNS responder started");
+  }
+
+  server.on("/", [](){
+    server.send(200, "text/html", webPage);
+  });
+  server.on("/data", [](){
+    server.send(200, "text/html", "This should be data");
+  });
+
+    server.begin();
 }
 
 void loop() {
   if (vbus.available() > 0){
       vbusBuffer.push(vbus.read());
   }
+
+  server.handleClient();
 }

@@ -1,5 +1,4 @@
 #include <Arduino.h>
-
 #include "VBusBuffer.h"
 
 #define VBUS_HEADER_MATCH {0xAA, 0x10, 0x00, 0x21, 0x77, 0x10, 0x00, 0x01, 0x11, 0x35}
@@ -83,18 +82,9 @@ void VBusBuffer::readFrame(const uint8_t data){
         _onFrameReceived(_frameIndex, frameData);
     }
 
-    //_printex.print("Frame: ").print(_frameIndex).print(", value: ").println(value);
 
     resetBuffer();
     _frameIndex++;
-
-    // if (_frameIndex == VBUS_FRAME_COUNT){
-    //     _printex.newln().print("Payload: ");
-    //     for (size_t i = 0; i < VBUS_PAYLOAD_SIZE; i++) {
-    //         _printex.print(" ").printHEX(_payload[i]);
-    //     }
-    //     _printex.newln();
-    // }
 }
 
 uint8_t VBusBuffer::calcFrameCRC()
