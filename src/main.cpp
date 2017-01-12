@@ -15,10 +15,10 @@
 #define VBUS_RX_PIN 2
 #define VBUS_TX_PIN 3
 
-ESP8266WebServer server(80);
-
-String webPage = "";
-MDNSResponder mdns;
+// ESP8266WebServer server(80);
+//
+// String webPage = "";
+// MDNSResponder mdns;
 
 
 int16_t parseInt(const uint8_t* buffer, const uint8_t start){
@@ -141,35 +141,37 @@ void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
 }
 
 SoftwareSerial vbus(VBUS_RX_PIN, VBUS_TX_PIN);
-VBusBuffer vbusBuffer(onFrameReceived);
+VBusBuffer vbusBuffer;
 
 void setup() {
+    vbusBuffer.onFrameReceived(onFrameReceived);
   Serial.begin(115200);
   vbus.begin(9600);
 
-  webPage = "Hi!";
+  // webPage = "Hi!";
 
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.println("");
+  // WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  // Serial.println("");
 
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
 
-  if (mdns.begin("iot01", WiFi.localIP())) {
-    Serial.println("MDNS responder started");
-  }
 
-  server.on("/", [](){
-    server.send(200, "text/html", webPage);
-  });
-  server.on("/data", [](){
-    server.send(200, "text/html", "This should be data");
-  });
+  // if (mdns.begin("iot01", WiFi.localIP())) {
+  //   Serial.println("MDNS responder started");
+  // }
 
-    server.begin();
+  // server.on("/", [](){
+  //   server.send(200, "text/html", webPage);
+  // });
+  // server.on("/data", [](){
+  //   server.send(200, "text/html", "This should be data");
+  // });
+  //
+  //   server.begin();
 }
 
 void loop() {
@@ -177,5 +179,5 @@ void loop() {
       vbusBuffer.push(vbus.read());
   }
 
-  server.handleClient();
+  // server.handleClient();
 }
