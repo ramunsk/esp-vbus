@@ -1,4 +1,43 @@
-body {
-    font-size: 12px;
-    font-weight: bold;
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Palanquin', sans-serif;
 }
+
+body {
+    /*margin: 5vh;*/
+    background: #222;
+}
+
+.card {
+    border: 2px solid #aaa;
+    margin: 5vh;
+    position: relative;
+    
+}
+
+.card-value {
+    font-size: 15vh;
+    line-height: 1.2em;
+    color: #fff;
+    text-align: center;
+    text-shadow: 4px 4px 4px rgba(0, 0, 0, 1);
+}
+
+.card-value.card-value__small {
+    font-size: 6vh;
+}
+
+.card-title {
+    color: #ddd;
+    font-size: 3vh;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    margin: 0 10vh;
+    text-align: center;
+    border-top: 1px solid #888;
+}
+
+
+
+
