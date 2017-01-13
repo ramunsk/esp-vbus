@@ -3,3 +3,5 @@
 .clang_complete
 .gcc-flags.json
 src/config.h
+webpage/dist/*
+node_modules/*
