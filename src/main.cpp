@@ -31,7 +31,7 @@ typedef struct {
 
 VBusData vbusData;
 char jsonResponse[100];
-const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\" rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/d2495468/webpage/page.min.js></script>";
+const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\" rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/c85d45a6/webpage/page.min.js></script>";
 ESP8266WebServer server(80);
 
 
@@ -65,20 +65,22 @@ void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
         return;
     }
 
-    if (frameIndex == 11){
+    if (frameIndex == 14){
         vbusData.s11 = parseInt(data, 0);
         return;
     }
 
     if (frameIndex == 15){
         vbusData.time = parseInt(data, 2);
+        DEBUG_PRINT("DATA: %02X %02X %02X %02X\n", data[0], data[1], data[2], data[3]);
+        DEBUG_PRINT("TIME:%d\n", vbusData.time);
         return;
     }
 
     if (frameIndex == 16){
-        vbusdata.year = parseInt(data, 0);
+        vbusData.year = parseInt(data, 0);
         vbusData.month = data[2];
-        vbusdata.day = data[3];
+        vbusData.day = data[3];
         return;
     }
 

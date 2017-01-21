@@ -1,5 +1,8 @@
 (function(window){
-    var document = window.document;
+    var 
+        document = window.document,
+        createElement = document.createElement.bind(document),
+        deg = '&deg;';
 
     // ==================================================
     //
@@ -18,14 +21,14 @@
     Card.prototype._createUI = function(){
         var titleNode;
 
-        this._node = document.createElement('div');
+        this._node = createElement('div');
         this._node.classList.add('card');
 
-        titleNode = document.createElement('h2');
+        titleNode = createElement('h2');
         titleNode.innerHTML = this._cardData.title;
         this._node.appendChild(titleNode);
 
-        this._valueNode = document.createElement('p');
+        this._valueNode = createElement('p');
         this._valueNode.innerHTML = '-';
         this._node.appendChild(this._valueNode)
     }
@@ -35,7 +38,17 @@
     }
 
     Card.prototype.update = function(data){
-        this._valueNode.innerHTML = this._cardData.format(data);
+        var value = this._cardData.parse(data);
+        if (value === null){
+            this._valueNode.innerHTML = '-';
+            return;
+        }
+        this._valueNode.innerHTML = this._cardData.format(value);
+        if (this._cardData.shouldWarn && this._cardData.shouldWarn(value)){
+            this._node.classList.add('warn');
+        } else {
+            this._node.classList.remove('warn');
+        }
     }
 
 
@@ -54,15 +67,15 @@
         var
             me = this,
             body = document.body,
-            header = document.createElement('h1'),
-            progress = document.createElement('div'),
-            cardContainer = document.createElement('div');
+            header = createElement('h1'),
+            progress = createElement('div'),
+            cardContainer = createElement('div');
 
         header.innerHTML = document.title;
         body.appendChild(header);
 
         progress.classList.add('progress');
-        this._progressValue = document.createElement('div');
+        this._progressValue = createElement('div');
         this._progressValue.classList.add('progress-value');
         progress.appendChild(this._progressValue);
         body.appendChild(progress);
@@ -96,62 +109,92 @@
 
     function App () {
         this._timeout = 1;
-        this._interval = 5;
+        this._interval = 15;
         this._cardData = [
             {
                 title: 'Lauke',
-                format: function(data){
-                    if (data && data.t7){
-                        return (+data.t7).toFixed(1) + '&deg;';
+                parse: function(data){
+                    if (data && 't7' in data){
+                        return +data.t7 / 10;
                     }
-                    return '-';
+                    return null;
+                },
+                format: function(value){
+                    return value.toFixed(1) + deg;
                 }
             },
             {
                 title: 'Vanduo',
-                format: function(data){
-                    if (data && data.t3 && data.t4){
-                        return (+data.t3).toFixed(1) + '&deg; ~ ' + (+data.t4).toFixed(1) + '&deg;';
+                parse: function(data){
+                    if (data && 't3' in data && 't4' in data){
+                        return { high: +data.t3 / 10, low: +data.t4 / 10 };
                     }
-                    return '- ~ -';
+                    return null;
+                },
+                format: function(value){
+                    return value.low.toFixed(1) + deg + ' ~ ' + value.high.toFixed(1) + deg;
                 }
             },
             {
                 title: 'Data',
-                format: function(data){
-                    if (data && data.date){
-                        var parts = data.date.split(/\D/);
-                        return parts[0] + '-' + parts[1] + '-' + parts[2];
+                parse: function(data){
+                    var parts;
+                    if (data && 'date' in data){
+                        parts = data.date.split(/\D/);
+                        return { 
+                            y: parts[0], 
+                            m: parts[1], 
+                            d: parts[2] 
+                        };
                     }
-                    return '-';
+                    return null;
+                },
+                format: function(value){
+                    return value.y + '-' + value.m + '-' + value.d;
                 }
             },
             {
                 title: 'Laikas',
-                format: function(data){
-                    if (data && data.date){
-                        var parts = data.date.split(/\D/);
-                        return parts[3] + ':' + parts[4];
+                parse: function(data){
+                    var value;
+                    if (data && 'time' in data){
+                        value = +data.time % 1440; 
+                        return {
+                            h: ~~(value / 60), // value \ 60;
+                            m: value % 60
+                        };
                     }
-                    return '-';
+                    return null;
+                },
+                format: function(value){
+                    return ('0' + value.h).slice(-2) + ':' + ('0' + value.m).slice(-2); 
                 }
             },
             {
                 title: 'Šildymas',
-                format: function(data){
-                    if (data && data.t6 && data.s11){
-                        return (+data.t6).toFixed(1) + '&deg; / ' + (+data.s11).toFixed(1) + '&deg;';
+                parse: function(data){
+                    if (data && 't6' in data && 's11' in data){
+                        return {
+                            tflow: +data.t6 / 10,
+                            tset: +data.s11 / 10                           
+                        };
                     }
-                    return '-';
-                }
+                    return null;
+                },
+                format: function(value){
+                    return value.tflow.toFixed(1) + deg + ' / ' + value.tset.toFixed(1) + deg;
+                } 
             },
             {
                 title: 'Pranešimai',
-                format: function(data){
-                    if (data && data.msg){
-                        return +data.t6 + '';
+                parse: function(data){
+                    if (data && 'msg' in data){
+                        return +data.msg;
                     }
-                    return '-';
+                    return null;
+                },
+                format: function(value){
+                    return value;
                 }
             }
         ];

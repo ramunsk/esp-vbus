@@ -1,0 +1,22 @@
+{
+  "name": "esp-vbus",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "live-server --port=8080 --entry-file=page.html webpage/",
+    "min": "npm run min:html && npm run min:css && npm run min:js",
+    "min:js": "uglifyjs webpage/page.js -o webpage/page.min.js --screw-ie8 --mangle --compress --stats --lint",
+    "min:css": "cleancss -o webpage/page.min.css webpage/page.css",
+    "min:html": "html-minifier --collapse-whitespace --html5 --remove-attribute-quotes --remove-comments --remove-optional-tags --remove-style-link-type-attributes --remove-tag-whitespace -o webpage/page.min.html webpage/page.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramunsk/esp-vbus.git"
+  },
+  "devDependencies": {
+    "clean-css": "^3.4.24",
+    "html-minifier": "^3.2.3",
+    "live-server": "^1.2.0",
+    "uglify-js": "^2.7.5"
+  }
+}
