@@ -10,7 +10,6 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 
 #define VBUS_RX_PIN 2
 #define VBUS_TX_PIN 3
@@ -31,17 +30,16 @@ typedef struct {
 
 VBusData vbusData;
 char jsonResponse[100];
-const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\" rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/c85d45a6/webpage/page.min.js></script>";
+const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\"rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/master/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/master/webpage/page.min.js></script><script src=page.js></script>";
 ESP8266WebServer server(80);
-
 
 int16_t parseInt(const uint8_t* buffer, const uint8_t start){
     return buffer[start] | buffer[start + 1] << 8;
 }
 
-float parseFloat(const uint8_t* buffer, const uint8_t start, const float factor = 0.1){
-    return parseInt(buffer, start) * factor;
-}
+// float parseFloat(const uint8_t* buffer, const uint8_t start, const float factor = 0.1){
+//     return parseInt(buffer, start) * factor;
+// }
 
 void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
     if (frameIndex == 1){
@@ -72,8 +70,6 @@ void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
 
     if (frameIndex == 15){
         vbusData.time = parseInt(data, 2);
-        DEBUG_PRINT("DATA: %02X %02X %02X %02X\n", data[0], data[1], data[2], data[3]);
-        DEBUG_PRINT("TIME:%d\n", vbusData.time);
         return;
     }
 
@@ -89,9 +85,9 @@ void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
 
 void formatJson(){
     sprintf(jsonResponse,
-            "{\"t3\":%d,\"t4\":%d,\"t6\":%d,\"t7\":%d,\"s11\":%d,\"date\":\"%04d-%02d-%02dT%02d:%02d\",\"msg\":%d}",
+            "{\"t3\":%d,\"t4\":%d,\"t6\":%d,\"t7\":%d,\"s11\":%d,\"date\":\"%04d-%02d-%02d\",\"time\":%d,\"msg\":%d}",
                 vbusData.t3, vbusData.t4, vbusData.t6, vbusData.t7, vbusData.s11,
-                vbusData.year, vbusData.month, vbusData.day, vbusData.time / 60, vbusData.time % 60, vbusData.msg);
+                vbusData.year, vbusData.month, vbusData.day, vbusData.time, vbusData.msg);
 }
 
 // void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
@@ -235,4 +231,8 @@ void loop() {
     }
 
     server.handleClient();
+
+    // String MAC_ADDR = WiFi.macAddress();
+    // Serial.print("MAC Address: ");
+    // Serial.println(MAC_ADDR); 
 }
