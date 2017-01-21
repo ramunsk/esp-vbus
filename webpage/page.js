@@ -1,6 +1,6 @@
 (function(window){
     var document = window.document;
-    
+
     // ==================================================
     //
     //    CARD
@@ -17,14 +17,14 @@
 
     Card.prototype._createUI = function(){
         var titleNode;
-        
+
         this._node = document.createElement('div');
         this._node.classList.add('card');
 
         titleNode = document.createElement('h2');
         titleNode.innerHTML = this._cardData.title;
         this._node.appendChild(titleNode);
-            
+
         this._valueNode = document.createElement('p');
         this._valueNode.innerHTML = '-';
         this._node.appendChild(this._valueNode)
@@ -44,14 +44,14 @@
     //    VIEW
     //
     // ==================================================
-   
+
     function View(){
-        this._cards = []; 
+        this._cards = [];
         this._progressValue = null;
     }
 
     View.prototype.init = function(cardData){
-        var 
+        var
             me = this,
             body = document.body,
             header = document.createElement('h1'),
@@ -93,7 +93,7 @@
     //    APP
     //
     // ==================================================
-   
+
     function App () {
         this._timeout = 1;
         this._interval = 5;
@@ -101,8 +101,8 @@
             {
                 title: 'Lauke',
                 format: function(data){
-                    if (data && data.t1){
-                        return (+data.t1).toFixed(1) + '&deg;';
+                    if (data && data.t7){
+                        return (+data.t7).toFixed(1) + '&deg;';
                     }
                     return '-';
                 }
@@ -110,8 +110,8 @@
             {
                 title: 'Vanduo',
                 format: function(data){
-                    if (data && data.t2 && data.t3){
-                        return (+data.t2).toFixed(1) + '&deg; ~ ' + (+data.t3).toFixed(1) + '&deg;';
+                    if (data && data.t3 && data.t4){
+                        return (+data.t3).toFixed(1) + '&deg; ~ ' + (+data.t4).toFixed(1) + '&deg;';
                     }
                     return '- ~ -';
                 }
@@ -139,15 +139,15 @@
             {
                 title: 'Šildymas',
                 format: function(data){
-                    if (data && data.t4 && data.s11){
-                        return (+data.t4).toFixed(1) + '&deg; / ' + (+data.s11).toFixed(1) + '&deg;';
+                    if (data && data.t6 && data.s11){
+                        return (+data.t6).toFixed(1) + '&deg; / ' + (+data.s11).toFixed(1) + '&deg;';
                     }
                     return '-';
                 }
             }
         ];
         this._view = new View();
-        
+
     }
 
     App.prototype.start = function() {
@@ -180,13 +180,13 @@
 
         request.onreadystatechange = function() {
             if (request.readyState === 4) {
-                if (request.status === 200) { 
+                if (request.status === 200) {
                     //if (callback){
                         me._onDataReveived.call(me, JSON.parse(request.responseText));
                     //}
                 } else {
                     console.log('An error occurred during your request: ',  request.status, request.statusText);
-                } 
+                }
             }
         }
 
@@ -197,8 +197,8 @@
     App.prototype._onDataReveived = function(data){
         this._view.update(data);
     }
-    
+
     var app = new App();
     app.start();
-    
+
 })(this)
