@@ -144,6 +144,15 @@
                     }
                     return '-';
                 }
+            },
+            {
+                title: 'Pranešimai',
+                format: function(data){
+                    if (data && data.msg){
+                        return +data.t6 + '';
+                    }
+                    return '-';
+                }
             }
         ];
         this._view = new View();

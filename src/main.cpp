@@ -25,12 +25,13 @@ typedef struct {
     int8_t month = 0;
     int8_t day = 0;
     int16_t time = 0;
+    int16_t msg = 0;
 } VBusData;
 
 
 VBusData vbusData;
 char jsonResponse[100];
-const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\" rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.js></script>";
+const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\" rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/02ba6197/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/d2495468/webpage/page.min.js></script>";
 ESP8266WebServer server(80);
 
 
@@ -59,13 +60,36 @@ void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
         return;
     }
 
+    if (frameIndex == 9){
+        vbusData.msg = parseInt(data, 2);
+        return;
+    }
+
+    if (frameIndex == 11){
+        vbusData.s11 = parseInt(data, 0);
+        return;
+    }
+
+    if (frameIndex == 15){
+        vbusData.time = parseInt(data, 2);
+        return;
+    }
+
+    if (frameIndex == 16){
+        vbusdata.year = parseInt(data, 0);
+        vbusData.month = data[2];
+        vbusdata.day = data[3];
+        return;
+    }
+
+
 }
 
 void formatJson(){
     sprintf(jsonResponse,
-            "{\"t3\":%d,\"t4\":%d,\"t6\":%d,\"t7\":%d,\"s11\":%d,\"date\":\"%04d-%02d-%02dT%02d:%02d\"}",
+            "{\"t3\":%d,\"t4\":%d,\"t6\":%d,\"t7\":%d,\"s11\":%d,\"date\":\"%04d-%02d-%02dT%02d:%02d\",\"msg\":%d}",
                 vbusData.t3, vbusData.t4, vbusData.t6, vbusData.t7, vbusData.s11,
-                vbusData.year, vbusData.month, vbusData.day, vbusData.time / 60, vbusData.time % 60);
+                vbusData.year, vbusData.month, vbusData.day, vbusData.time / 60, vbusData.time % 60, vbusData.msg);
 }
 
 // void onFrameReceived(const uint8_t frameIndex, const uint8_t data[]){
