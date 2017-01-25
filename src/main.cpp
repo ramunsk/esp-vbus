@@ -234,5 +234,6 @@ void loop() {
 
     // String MAC_ADDR = WiFi.macAddress();
     // Serial.print("MAC Address: ");
-    // Serial.println(MAC_ADDR); 
+    // Serial.println(MAC_ADDR);
+    // delay(1000);
 }
