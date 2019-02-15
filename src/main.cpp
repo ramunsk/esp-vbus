@@ -30,7 +30,7 @@ typedef struct {
 
 VBusData vbusData;
 char jsonResponse[100];
-const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\"rel=stylesheet><link rel=stylesheet href=https://cdn.rawgit.com/ramunsk/esp-vbus/master/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.rawgit.com/ramunsk/esp-vbus/master/webpage/page.min.js></script>";
+const String webPage = "<!DOCTYPE html><meta charset=utf-8><link href=\"https://fonts.googleapis.com/css?family=Lato:300,700&amp;subset=latin-ext\"rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/gh/ramunsk/esp-vbus/webpage/page.min.css><title>Mano namai</title><body><script src=https://cdn.jsdelivr.net/gh/ramunsk/esp-vbus/webpage/page.min.js></script>";
 ESP8266WebServer server(80);
 
 int16_t parseInt(const uint8_t* buffer, const uint8_t start){
